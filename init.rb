@@ -1,0 +1,1 @@
+# satisfy Rails plugin loader
