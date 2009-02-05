@@ -1,7 +1,12 @@
 require 'rubygems'
-gem 'rspec', '1.1.4'
+gem 'rspec', '1.1.12'
 require 'spec'
 require File.dirname(__FILE__) + '/../lib/rspec_rails_mocha'
+
+require 'active_support/core_ext/hash/reverse_merge'
+include ActiveSupport::CoreExtensions::Hash::ReverseMerge
+
+require 'active_support/core_ext/object/misc'
 
 class Person
   attr_accessor :id, :name

@@ -2,7 +2,7 @@
 
 module Spec
   module Rails
-    
+
     unless defined?(IllegalDataAccessException)
       class IllegalDataAccessException < StandardError; end
     end
@@ -12,16 +12,16 @@ module Spec
       # Creates a mock object instance for a +model_class+ with common
       # methods stubbed out. Additional methods may be easily stubbed (via
       # add_stubs) if +stubs+ is passed.
-      def mock_model(model_class, params = {})
-        id = params[:id] || next_id
-        model = stub("#{model_class.name}_#{id}", {
+      def mock_model(model_class, options_and_stubs = {})
+        id = options_and_stubs[:id] || next_id
+        options_and_stubs = options_and_stubs.reverse_merge({
           :id => id,
           :to_param => id.to_s,
           :new_record? => false,
           :errors => stub("errors", :count => 0)
-        }.update(params))
-        
-        model.instance_eval <<-CODE
+        })
+        m = stub("#{model_class.name}_#{id}", options_and_stubs)
+        m.instance_eval <<-CODE
           def as_new_record
             self.stubs(:id).returns(nil)
             self.stubs(:to_param).returns(nil)
@@ -41,9 +41,8 @@ module Spec
             #{model_class}
           end
         CODE
-        
-        yield model if block_given?
-        return model
+        yield m if block_given?
+        m
       end
       
       module ModelStubber
@@ -63,6 +62,7 @@ module Spec
       #   stub_model(Model)
       #   stub_model(Model).as_new_record
       #   stub_model(Model, hash_of_stubs)
+      #   stub_model(Model, instance_variable_name, hash_of_stubs)
       #
       # Creates an instance of +Model+ that is prohibited from accessing the
       # database*. For each key in +hash_of_stubs+, if the model has a
@@ -98,27 +98,34 @@ module Spec
       #   stub_model(Person) do |person|
       #     person.first_name = "David"
       #   end
-      def stub_model(model_class, params = {})
-        params = params.dup
-        model = model_class.new
-        model.id = params.delete(:id) || next_id
-        
-        model.extend ModelStubber
-        params.keys.each do |prop|
-          model[prop] = params.delete(prop) if model.has_attribute?(prop)
+      def stub_model(model_class, stubs={})
+        stubs = {:id => next_id}.merge(stubs)
+        returning(model_class.new) do |model|
+          model.id = stubs.delete(:id)
+          model.extend ModelStubber
+          stubs.each do |k,v|
+            if model.has_attribute?(k)
+              model[k] = stubs.delete(k)
+            end
+          end
+          model.stubs(stubs)
+          yield model if block_given?
         end
-        add_stubs(model, params)
-        
-        yield model if block_given?
-        return model
       end
       
+      # DEPRECATED - use object.stubs(:method => value, :method2 => value)
+      #
       # Stubs methods on +object+ (if +object+ is a symbol or string a new mock
       # with that name will be created). +stubs+ is a Hash of +method=>value+
-      def add_stubs(object, params) # :nodoc:
-        m = [String, Symbol].include?(object.class) ? mock(object.to_s) : object
-        params.each { |prop, value| m.stubs(prop).returns(value) }
-        m
+      def add_stubs(object, stubs = {}) #:nodoc:
+        Kernel.warn <<-WARNING
+DEPRECATION NOTICE: add_stubs is deprecated and will be removed
+from a future version of rspec-rails. Use this instead:
+  
+  object.stubs(:method => value, :method2 => value)
+  
+WARNING
+        object.stubs(stubs)
       end
 
       private

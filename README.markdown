@@ -4,7 +4,7 @@ RSpec-Rails Mocha plugin
 This brings functionality of `mock_model` and `stub_model` from rspec-rails to those using Mocha.
 
     require 'rubygems'
-    gem 'rspec', '1.1.4'
+    gem 'rspec', '1.1.12'
     require 'spec'
     require 'spec/rails'
     require 'rspec_rails_mocha'
