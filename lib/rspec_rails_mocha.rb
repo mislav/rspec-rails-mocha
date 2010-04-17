@@ -138,7 +138,7 @@ WARNING
   end
 end
 
-Spec::Runner.configure do |config|
+Rspec.configure do |config|
   config.mock_with :mocha
   config.include Spec::Rails::Mocha
 end
