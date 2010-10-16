@@ -1,14 +1,8 @@
-# copied from rspec-rails and tweaked to work as expected with Mocha
-
-module Spec
+# copied from rspec-rails v1.3 and tweaked to work as expected with Mocha
+# TODO: update to reflect the API of rspec-rails 2.0
+module RSpec
   module Rails
-
-    unless defined?(IllegalDataAccessException)
-      class IllegalDataAccessException < StandardError; end
-    end
-    
     module Mocha
-      
       # Creates a mock object instance for a +model_class+ with common
       # methods stubbed out. Additional methods may be easily stubbed (via
       # add_stubs) if +stubs+ is passed.
@@ -47,7 +41,7 @@ module Spec
       
       module ModelStubber
         def connection
-          raise Spec::Rails::IllegalDataAccessException.new("stubbed models are not allowed to access the database")
+          raise IllegalDataAccessException.new("stubbed models are not allowed to access the database")
         end
         def new_record?
           id.nil?
@@ -100,7 +94,7 @@ module Spec
       #   end
       def stub_model(model_class, stubs={})
         stubs = {:id => next_id}.merge(stubs)
-        returning(model_class.new) do |model|
+        model_class.new.tap do |model|
           model.id = stubs.delete(:id)
           model.extend ModelStubber
           stubs.each do |k,v|
@@ -129,16 +123,13 @@ WARNING
       end
 
       private
+
         @@model_id = 1000
+
         def next_id
           @@model_id += 1
         end
 
     end
   end
-end
-
-Rspec.configure do |config|
-  config.mock_with :mocha
-  config.include Spec::Rails::Mocha
 end

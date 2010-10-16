@@ -1,16 +1,17 @@
-RSpec-Rails Mocha plugin
-========================
+rspec-rails Mocha extension
+===========================
 
-(Tweaked to work with Rails 3 and RSpec 2.)
+Functionality of `mock_model` and `stub_model` from rspec-rails for those using Mocha.
 
-This brings functionality of `mock_model` and `stub_model` from rspec-rails to those using Mocha.
+Installation:
 
-    require 'rubygems'
-    gem 'rspec', '2.0.0.beta.6'
-    require 'spec'
-    require 'spec/rails'
-    require 'rspec_rails_mocha'
-    
+    # Gemfile
+    group :test do
+      gem 'rspec-rails-mocha'
+    end
+
+Usage:
+
     describe "Mocha plugin" do
       it "#mock_model should use given ID" do
         person = mock_model(Person, :id => 66)

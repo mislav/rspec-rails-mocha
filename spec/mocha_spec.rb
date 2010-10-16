@@ -1,12 +1,13 @@
-require 'rubygems'
-gem 'rspec', '1.1.12'
-require 'spec'
-require File.dirname(__FILE__) + '/../lib/rspec_rails_mocha'
+require 'rspec'
+require 'rspec-rails-mocha'
+
+module RSpec::Rails
+  # usually defined in "rspec/rails/mocks"
+  class IllegalDataAccessException < StandardError; end
+end
 
 require 'active_support/core_ext/hash/reverse_merge'
-include ActiveSupport::CoreExtensions::Hash::ReverseMerge
-
-require 'active_support/core_ext/object/misc'
+require 'active_support/core_ext/object'
 
 class Person
   attr_accessor :id, :name
@@ -85,7 +86,7 @@ describe "rspec-rails Mocha plugin" do
     it "can't connect" do
       lambda {
         create(Person).connection
-      }.should raise_error(Spec::Rails::IllegalDataAccessException)
+      }.should raise_error(RSpec::Rails::IllegalDataAccessException)
     end
   end
   
