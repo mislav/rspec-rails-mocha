@@ -59,6 +59,13 @@ describe "rspec-rails Mocha plugin" do
       person.id.should == 66
     end
     
+    it "should use given ID in to_key" do
+      personA = create(Person, :id => 66)
+      personA.to_key.should == [66]
+      personB = create(Person)
+      personB.to_key.first.should >= 1000
+    end
+    
     it "should mock a record with properties" do
       hacker = create(Hacker, :name => "Mislav", :skillz => 1337)
       hacker.name.should == "Mislav"

@@ -71,7 +71,8 @@ It received #{model_class.inspect}
 EOM
         end
 
-        stubs = stubs.reverse_merge(:id => next_id)
+        id = next_id
+        stubs = stubs.reverse_merge(:id => id)
         stubs = stubs.reverse_merge(:persisted? => !!stubs[:id])
         stubs = stubs.reverse_merge(:destroyed? => false)
         stubs = stubs.reverse_merge(:marked_for_destruction? => false)
@@ -107,6 +108,10 @@ EOM
             end
             def to_s
               "#{model_class.name}_#{to_param}"
+            end
+
+            def to_key
+              [id]
             end
           CODE
           yield m if block_given?
