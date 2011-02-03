@@ -1,3 +1,5 @@
+require 'active_model'
+
 module RSpec
   module Rails
     module Mocha
@@ -73,11 +75,12 @@ EOM
         stubs = stubs.reverse_merge(:persisted? => !!stubs[:id])
         stubs = stubs.reverse_merge(:destroyed? => false)
         stubs = stubs.reverse_merge(:marked_for_destruction? => false)
+        stubs = stubs.reverse_merge(:errors => stub("errors", :count => 0))
 
-        mock("#{model_class.name}_#{stubs[:id]}", stubs).tap do |m|
+        stub("#{model_class.name}_#{stubs[:id]}", stubs).tap do |m|
           m.extend ActiveModelInstanceMethods
-          m.singleton_class.__send__ :include, ActiveModel::Conversion
-          m.singleton_class.__send__ :include, ActiveModel::Validations
+          model_class.__send__ :include, ActiveModel::Conversion
+          model_class.__send__ :include, ActiveModel::Validations
           if defined?(ActiveRecord)
             m.extend ActiveRecordInstanceMethods
             [:save, :update_attributes].each do |key|
@@ -86,23 +89,23 @@ EOM
               end
             end
           end
-          m.__send__(:__mock_proxy).instance_eval(<<-CODE, __FILE__, __LINE__)
-            def @object.is_a?(other)
+          m.instance_eval(<<-CODE, __FILE__, __LINE__)
+            def is_a?(other)
               #{model_class}.ancestors.include?(other)
             end
-            def @object.kind_of?(other)
+            def kind_of?(other)
               #{model_class}.ancestors.include?(other)
             end
-            def @object.instance_of?(other)
+            def instance_of?(other)
               other == #{model_class}
             end
-            def @object.respond_to?(method_name, include_private=false)
+            def respond_to?(method_name, include_private=false)
               #{model_class}.respond_to?(:column_names) && #{model_class}.column_names.include?(method_name.to_s) || super
             end
-            def @object.class
+            def class
               #{model_class}
             end
-            def @object.to_s
+            def to_s
               "#{model_class.name}_#{to_param}"
             end
           CODE

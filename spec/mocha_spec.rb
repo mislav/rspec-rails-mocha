@@ -1,6 +1,16 @@
 require 'rspec'
 require 'rspec-rails-mocha'
 
+# Simple stub for ActiveRecord::Base
+module ActiveRecord
+  class Base
+    extend ActiveModel::Naming
+    class << self
+      def primary_key; "id"; end
+    end
+  end
+end
+
 module RSpec::Rails
   # usually defined in "rspec/rails/mocks"
   class IllegalDataAccessException < StandardError; end
@@ -9,7 +19,7 @@ end
 require 'active_support/core_ext/hash/reverse_merge'
 require 'active_support/core_ext/object'
 
-class Person
+class Person < ActiveRecord::Base
   attr_accessor :id, :name
   
   def has_attribute?(attr)
