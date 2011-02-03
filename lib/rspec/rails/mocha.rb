@@ -71,12 +71,11 @@ It received #{model_class.inspect}
 EOM
         end
 
-        id = next_id
-        stubs = stubs.reverse_merge(:id => id)
+        stubs = stubs.reverse_merge(:id => next_id)
         stubs = stubs.reverse_merge(:persisted? => !!stubs[:id])
         stubs = stubs.reverse_merge(:destroyed? => false)
         stubs = stubs.reverse_merge(:marked_for_destruction? => false)
-        stubs = stubs.reverse_merge(:errors => stub("errors", :count => 0))
+        stubs = stubs.reverse_merge(:errors => stub("errors", :count => 0, :[] => []))
 
         stub("#{model_class.name}_#{stubs[:id]}", stubs).tap do |m|
           m.extend ActiveModelInstanceMethods
