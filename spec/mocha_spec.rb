@@ -90,6 +90,7 @@ describe "rspec-rails Mocha plugin" do
     
     it "should have no errors" do
       create(Person).errors.count.should == 0
+      create(Person).errors.empty?.should be_true
       create(Person).errors[:name].should == []
     end
   end

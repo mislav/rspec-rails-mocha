@@ -75,7 +75,7 @@ EOM
         stubs = stubs.reverse_merge(:persisted? => !!stubs[:id])
         stubs = stubs.reverse_merge(:destroyed? => false)
         stubs = stubs.reverse_merge(:marked_for_destruction? => false)
-        stubs = stubs.reverse_merge(:errors => stub("errors", :count => 0, :[] => []))
+        stubs = stubs.reverse_merge(:errors => stub("errors", :count => 0, :[] => [], :empty? => true))
 
         stub("#{model_class.name}_#{stubs[:id]}", stubs).tap do |m|
           m.extend ActiveModelInstanceMethods
