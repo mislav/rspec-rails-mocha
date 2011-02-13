@@ -3,12 +3,16 @@ rspec-rails Mocha extension
 
 Functionality of `mock_model` and `stub_model` from rspec-rails for those using Mocha.
 
-Installation:
+Installation for **Rails 3**:
 
     # Gemfile
     group :test do
-      gem 'rspec-rails-mocha'
+      gem 'rspec-rails-mocha', '~> 0.3.0'
     end
+
+For **Rails 2**, use the '0.2.x' version:
+
+    gem 'rspec-rails-mocha', '~> 0.2.1'
 
 Usage:
 
