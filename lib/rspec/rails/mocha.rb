@@ -1,7 +1,11 @@
 # copied from rspec-rails v1.3 and tweaked to work as expected with Mocha
 # TODO: update to reflect the API of rspec-rails 2.0
-module RSpec
+module Spec
   module Rails
+    unless defined?(IllegalDataAccessException)
+      class IllegalDataAccessException < StandardError; end
+    end
+    
     module Mocha
       # Creates a mock object instance for a +model_class+ with common
       # methods stubbed out. Additional methods may be easily stubbed (via

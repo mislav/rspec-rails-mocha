@@ -4,7 +4,7 @@ Gem::Specification.new do |gem|
   gem.date    = Date.today.to_s
 
   gem.add_dependency 'mocha', '>= 0.9.8'
-  gem.add_dependency 'rspec-rails', '>= 2.0.0'
+  gem.add_dependency 'rspec-rails', '>= 1.3.2'
 
   gem.summary = "mock_model and stub_model with Mocha"
   gem.description = "Ports functionality of mock_model and stub_model from rspec-rails using Mocha."

@@ -1,7 +1,7 @@
-require 'rspec/core'
+require 'spec'
 require 'rspec/rails/mocha'
 
-RSpec.configure do |config|
+Spec::Runner.configure do |config|
   config.mock_with :mocha
-  config.include RSpec::Rails::Mocha
+  config.include Spec::Rails::Mocha
 end
