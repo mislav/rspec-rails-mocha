@@ -1,12 +1,18 @@
+require 'active_support/core_ext'
 require 'active_model'
 
 module RSpec
   module Rails
+
+    unless defined? IllegalDataAccessException
+      class IllegalDataAccessException < StandardError; end
+    end
+
     module Mocha
+
       module ActiveModelInstanceMethods
         def as_new_record
-          self.stubs(:persisted?) { false }
-          self.stubs(:id) { nil }
+          self.stubs(:persisted? => false, :id => nil)
           self
         end
 
@@ -21,8 +27,11 @@ module RSpec
 
       module ActiveRecordInstanceMethods
         def destroy
-          self.stubs(:persisted?) { false }
-          self.stubs(:id) { nil }
+          self.stubs(:persisted? => false, :id => nil)
+        end
+
+        def [](key)
+          send(key)
         end
 
         def new_record?
@@ -71,21 +80,23 @@ It received #{model_class.inspect}
 EOM
         end
 
-        stubs = stubs.reverse_merge(:id => next_id)
+        stubs = stubs.reverse_merge \
+          :id => next_id,
+          :destroyed? => false,
+          :marked_for_destruction? => false,
+          :blank? => false
+
         stubs = stubs.reverse_merge(:persisted? => !!stubs[:id])
-        stubs = stubs.reverse_merge(:destroyed? => false)
-        stubs = stubs.reverse_merge(:marked_for_destruction? => false)
-        stubs = stubs.reverse_merge(:errors => stub("errors", :count => 0, :[] => [], :empty? => true))
 
         stub("#{model_class.name}_#{stubs[:id]}", stubs).tap do |m|
           m.extend ActiveModelInstanceMethods
-          model_class.__send__ :include, ActiveModel::Conversion
-          model_class.__send__ :include, ActiveModel::Validations
+          m.singleton_class.__send__ :include, ActiveModel::Conversion
+          m.singleton_class.__send__ :include, ActiveModel::Validations
           if defined?(ActiveRecord)
             m.extend ActiveRecordInstanceMethods
             [:save, :update_attributes].each do |key|
               if stubs[key] == false
-                m.errors.stubs(:empty?) { false }
+                m.errors.stubs(:empty? => false)
               end
             end
           end
@@ -108,10 +119,6 @@ EOM
             def to_s
               "#{model_class.name}_#{to_param}"
             end
-
-            def to_key
-              [id]
-            end
           CODE
           yield m if block_given?
         end
@@ -119,9 +126,12 @@ EOM
 
       module ActiveModelStubExtensions
         def as_new_record
-          self.stubs(:persisted?)  { false }
-          self.stubs(:id)          { nil }
+          self.stubs(:persisted? => false, :id => nil)
           self
+        end
+
+        def persisted?
+          true
         end
       end
 
@@ -136,7 +146,7 @@ EOM
         end
 
         def connection
-          raise RSpec::Rails::IllegalDataAccessException.new("stubbed models are not allowed to access the database")
+          raise IllegalDataAccessException.new("stubbed models are not allowed to access the database")
         end
       end
 
@@ -187,6 +197,7 @@ EOM
             stubs = stubs.reverse_merge(:id => next_id)
             stubs = stubs.reverse_merge(:persisted? => !!stubs[:id])
           end
+          stubs = stubs.reverse_merge(:blank? => false)
           stubs.each do |k,v|
             m.__send__("#{k}=", stubs.delete(k)) if m.respond_to?("#{k}=")
           end
@@ -202,6 +213,12 @@ EOM
       def next_id
         @@model_id += 1
       end
+
     end
   end
+end
+
+RSpec.configure do |config|
+  config.mock_with :mocha
+  config.include RSpec::Rails::Mocha
 end

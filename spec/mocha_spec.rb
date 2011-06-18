@@ -1,5 +1,5 @@
 require 'rspec'
-require 'rspec-rails-mocha'
+require 'rspec/rails/mocha'
 
 # Simple stub for ActiveRecord::Base
 module ActiveRecord
@@ -15,9 +15,6 @@ module RSpec::Rails
   # usually defined in "rspec/rails/mocks"
   class IllegalDataAccessException < StandardError; end
 end
-
-require 'active_support/core_ext/hash/reverse_merge'
-require 'active_support/core_ext/object'
 
 class Person < ActiveRecord::Base
   attr_accessor :id, :name
@@ -57,13 +54,6 @@ describe "rspec-rails Mocha plugin" do
     it "should use given ID" do
       person = create(Person, :id => 66)
       person.id.should == 66
-    end
-    
-    it "should use given ID in to_key" do
-      personA = create(Person, :id => 66)
-      personA.to_key.should == [66]
-      personB = create(Person)
-      personB.to_key.first.should >= 1000
     end
     
     it "should mock a record with properties" do
