@@ -1,5 +1,6 @@
 require 'active_support/core_ext'
 require 'active_model'
+require 'rspec/core'
 
 module RSpec
   module Rails
