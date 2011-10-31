@@ -190,9 +190,17 @@ EOM
           m.extend ActiveModelStubExtensions
           if defined?(ActiveRecord) && model_class < ActiveRecord::Base
             m.extend ActiveRecordStubExtensions
-            primary_key = model_class.primary_key.to_sym
-            stubs = stubs.reverse_merge(primary_key => next_id)
-            stubs = stubs.reverse_merge(:persisted? => !!stubs[primary_key])
+            unless defined?(model_class.composite?) && model_class.composite? 
+	       primary_key = model_class.primary_key.to_sym
+	       stubs = stubs.reverse_merge(primary_key => next_id)
+               stubs = stubs.reverse_merge(:persisted? => !!stubs[primary_key])
+            else
+               model_class.primary_key.each do |cpk_column|
+                 cpk_column = cpk_column.to_sym
+                 stubs = stubs.reverse_merge(cpk_column => next_id)
+                 stubs = stubs.reverse_merge(:persisted? => !!stubs[cpk_column])
+               end
+            end
           else
             stubs = stubs.reverse_merge(:id => next_id)
             stubs = stubs.reverse_merge(:persisted? => !!stubs[:id])
