@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |gem|
   gem.name    = 'rspec-rails-mocha'
-  gem.version = '0.3.1'
+  gem.version = '0.3.2'
 
   gem.add_dependency 'mocha', '>= 0.9.8'
   gem.add_dependency 'rspec-rails', '>= 2.0.0'
